@@ -4,17 +4,14 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
+  del, get,
+  getModelSchemaRef, param,
+  patch, post,
   put,
-  del,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {Person} from '../models';
 import {PersonRepository} from '../repositories';
@@ -22,7 +19,7 @@ import {PersonRepository} from '../repositories';
 export class PersonController {
   constructor(
     @repository(PersonRepository)
-    public personRepository : PersonRepository,
+    public personRepository: PersonRepository,
   ) {}
 
   @post('/person', {
@@ -170,4 +167,26 @@ export class PersonController {
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.personRepository.deleteById(id);
   }
+
+  @get('/person/nric/{nric}', {
+    responses: {
+      '200': {
+        description: 'Array of Person model instances',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'array',
+              items: getModelSchemaRef(Person, {includeRelations: true}),
+            },
+          },
+        },
+      },
+    },
+  })
+  async findByNric(
+    @param.path.string('nric') nric: string,
+  ): Promise<Person[]> {
+    return this.personRepository.findByNric(nric);
+  }
 }
+
